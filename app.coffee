@@ -43,17 +43,30 @@ mongourl = generateMongoUrl mongo
 # BACK
 ####################################################
 
-# Get the parser needed for the url (if any)
-getParserByUrl = (_url) ->
-	parserType = 'default'
-	host = url.parse(_url).pathname.replace("/", "").replace("www.", "")
-	parserType = hosts[host] if hosts[host]?
-	parserType
+class rss
+	# { hash, url, parser }
+	# TODO custom name Fex: /the-walking-dead-1080-publihd.xml
+	constructor: (@url, @parser="default") ->
 
-# Load parser based on URL
-loadParserByUrl = (_url) ->
-	parserType = getParserByUrl
-	loadParser parserType
+	# Get the RSS parser based on hosts.json
+	getParser: ->
+		host = url.parse(@url).pathname.replace("/", "").replace("www.", "")
+		@parser = hosts[host] if hosts[host]?
+
+	# Get the RSS object from ID
+	getFromId: (_id) ->
+		# MongoDB
+
+	# Create a MD5 unique hash for the URL provided
+	# MD5 ( RSS_URL + PARSER NAME )
+	createHash: ->
+		if @url and @parser
+			hash = crypto.createHash 'md5'
+			@hash = hash.update(@url + @parser).digest('hex')
+
+	# Save the object
+	save: ->
+		# MongoDB handler
 
 # Load the parser
 loadParser = (_parser) ->
@@ -61,12 +74,6 @@ loadParser = (_parser) ->
 		new parsers[parserType]()
 	else
 		null
-
-# Create a MD5 unique hash for the URL provided
-# MD5 ( RSS_URL + PARSER NAME )
-createHash = (_url, _parserType) ->
-	hash = crypto.createHash 'md5'
-	hash.update(_url + _parserType).digest('hex')
 
 ####################################################
 # SITE
@@ -78,9 +85,12 @@ app.get "/", (request, response) ->
 	response.sendfile "html/home.html"
 
 app.post "/", (request, response) ->
-	rss = request.param 'rss'
-	parserType = getParserByUrl rss
-	response.send createHash(rss, parserType)
+	rssUrl = request.param 'rss'
+	item = new rss rssUrl
+	item.getParser()
+	item.createHash()
+	item.save()
+	response.redirect "/#{item.hash}.xml"
 	response.end()
 
 # RSS Request
