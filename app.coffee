@@ -1,13 +1,14 @@
 express = require 'express'
 url = require 'url'
 crypto = require 'crypto'
+mongoose = require 'mongoose'
 app = express()
 
 # Load parsers
 parsers = require "./parsers"
 
 # Load custom hosts
-hosts = require './hosts'
+HOSTS = require './hosts'
 
 # Debug enabled?
 DEBUG = true
@@ -37,39 +38,45 @@ generateMongoUrl = (_object) ->
 	else
 		"mongodb://" + _object.hostname + ":" + _object.port + "/" + _object.db;
 
-mongourl = generateMongoUrl mongo
+# Database configuration
+DDBB =
+	collection: 'rss'
+	connection: generateMongoUrl mongo
+
+mongodb = mongoose.createConnection DDBB.connection
+
+mongodb.on 'error', console.error.bind(console, 'connection error: ')
+#mongodb.once 'open', ->
+#	console.log 'open!'
+
 
 ####################################################
 # BACK
 ####################################################
 
-class rss
-	# { hash, url, parser }
-	# TODO custom name Fex: /the-walking-dead-1080-publihd.xml
-	constructor: (@url, @parser="default") ->
-		if url
-			@getParser()
-			@createHash()
+# The RSS schema for the DDBB
+rssSchema = new mongoose.Schema
+	hash: { type: String, index: true }
+	parser: { type: String, default: 'default' }
+	url: String,
+	added: { type: Date, default: Date.now }
+, collection: 'rss'
 
-	# Get the RSS parser based on hosts.json
-	getParser: ->
-		host = url.parse(@url).pathname.replace("/", "").replace("www.", "")
-		@parser = hosts[host] if hosts[host]?
+# Get the RSS parser based on hosts.json
+getParser = (_url) ->
+	parser = 'default'
+	host = url.parse(_url).host.replace("/", "").replace("www.", "")
+	parser = HOSTS[host] if HOSTS[host]?
+	parser
 
-	# Get the RSS object from ID
-	getFromId: (_id) ->
-		# MongoDB
+# Create a MD5 unique hash for the URL provided
+# MD5 ( RSS_URL + PARSER NAME )
+createHash = (_url, _parser) ->
+	hash = crypto.createHash 'md5'
+	hash.update(_url + _parser).digest('hex')
 
-	# Create a MD5 unique hash for the URL provided
-	# MD5 ( RSS_URL + PARSER NAME )
-	createHash: ->
-		if @url and @parser
-			hash = crypto.createHash 'md5'
-			@hash = hash.update(@url + @parser).digest('hex')
-
-	# Save the object
-	save: ->
-		# MongoDB handler
+# Make a model from all of this
+rss = mongodb.model 'rss', rssSchema
 
 # Load the parser
 loadParser = (_parser) ->
@@ -89,12 +96,19 @@ app.get "/", (request, response) ->
 
 app.post "/", (request, response) ->
 	rssUrl = request.param 'rss'
-	item = new rss rssUrl
-	#item.getParser()
-	#item.createHash()
-	item.save()
-	response.redirect "/#{item.hash}.xml"
-	response.end()
+	parser = getParser rssUrl
+	hash = createHash rssUrl, parser
+	rss.findOne { hash: hash }, (_error, _item) ->
+		if _item isnt null
+			item = _item
+		else
+			item = new rss 
+				url: rssUrl
+				hash: hash
+				parser: parser
+			item.save()
+		response.redirect "/#{item.hash}.xml"
+		response.end()
 
 # RSS Request
 app.get "/:rss.xml", (request, response) ->
