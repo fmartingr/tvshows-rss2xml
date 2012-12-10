@@ -47,6 +47,9 @@ class rss
 	# { hash, url, parser }
 	# TODO custom name Fex: /the-walking-dead-1080-publihd.xml
 	constructor: (@url, @parser="default") ->
+		if url
+			@getParser()
+			@createHash()
 
 	# Get the RSS parser based on hosts.json
 	getParser: ->
@@ -87,8 +90,8 @@ app.get "/", (request, response) ->
 app.post "/", (request, response) ->
 	rssUrl = request.param 'rss'
 	item = new rss rssUrl
-	item.getParser()
-	item.createHash()
+	#item.getParser()
+	#item.createHash()
 	item.save()
 	response.redirect "/#{item.hash}.xml"
 	response.end()

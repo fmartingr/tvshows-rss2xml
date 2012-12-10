@@ -47,6 +47,10 @@ rss = (function() {
   function rss(url, parser) {
     this.url = url;
     this.parser = parser != null ? parser : "default";
+    if (url) {
+      this.getParser();
+      this.createHash();
+    }
   }
 
   rss.prototype.getParser = function() {
@@ -91,8 +95,6 @@ app.post("/", function(request, response) {
   var item, rssUrl;
   rssUrl = request.param('rss');
   item = new rss(rssUrl);
-  item.getParser();
-  item.createHash();
   item.save();
   response.redirect("/" + item.hash + ".xml");
   return response.end();
