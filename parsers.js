@@ -13,22 +13,33 @@ parser = (function() {
 
   parser.tree = null;
 
-  parser.prototype.get = function(_url) {
-    if (_url == null) {
-      _url = "";
-    }
-    return http.get("http://" + _url, function(response) {
+  parser.prototype.get = function(_url, _callback) {
+    var _this = this;
+    console.log("GET: " + _url);
+    return http.get("" + _url, function(response) {
       var data;
       data = '';
       response.on('data', function(chunk) {
         return data += chunk;
       });
       return response.on('end', function() {
-        return this.tree = elementtree.parse(data);
+        _this.tree = elementtree.parse(data);
+        return _callback.call();
       });
     }).on('error', function(error) {
       return console.log(error.message);
     });
+  };
+
+  parser.prototype.work = function(_url, _callback) {
+    var _this = this;
+    return this.get(_url, function() {
+      return _this.parse(_callback);
+    });
+  };
+
+  parser.prototype.parse = function(_callback) {
+    return _callback.call(this, this.tree);
   };
 
   parser.prototype.foo = function() {

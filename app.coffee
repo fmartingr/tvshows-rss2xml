@@ -60,6 +60,7 @@ rssSchema = new mongoose.Schema
 	parser: { type: String, default: 'default' }
 	url: String,
 	added: { type: Date, default: Date.now }
+	custom_url: String
 , collection: 'rss'
 
 # Get the RSS parser based on hosts.json
@@ -79,9 +80,9 @@ createHash = (_url, _parser) ->
 rss = mongodb.model 'rss', rssSchema
 
 # Load the parser
-loadParser = (_parser) ->
+loadParser = (_parser="default") ->
 	if parsers[_parser]
-		new parsers[parserType]()
+		new parsers[_parser]()
 	else
 		null
 
@@ -113,9 +114,19 @@ app.post "/", (request, response) ->
 		response.end()
 
 # RSS Request
-app.get "/:rss.xml", (request, response) ->
-	response.send 'load parser here!'
-	response.end()
+app.get "/:hash.xml", (request, response) ->
+	hash = request.params.hash
+	item = rss.findOne { $or: [ { custom_url: hash }, { hash: hash } ] }, (_error, _item) ->
+		if _item is null
+			# List not found
+			response.set 'Content-Type', 'text/html'
+			response.status 404
+			response.sendfile 'public/404.html'
+		else
+			itemParser = loadParser _item.parser
+			console.log itemParser
+			itemParser.work _item.url, (xml) ->
+				response.send xml
 
 # Start server
 app.listen process.env.VCAP_APP_PORT || 3000

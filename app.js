@@ -64,7 +64,8 @@ rssSchema = new mongoose.Schema({
   added: {
     type: Date,
     "default": Date.now
-  }
+  },
+  custom_url: String
 }, {
   collection: 'rss'
 });
@@ -88,8 +89,11 @@ createHash = function(_url, _parser) {
 rss = mongodb.model('rss', rssSchema);
 
 loadParser = function(_parser) {
+  if (_parser == null) {
+    _parser = "default";
+  }
   if (parsers[_parser]) {
-    return new parsers[parserType]();
+    return new parsers[_parser]();
   } else {
     return null;
   }
@@ -127,9 +131,31 @@ app.post("/", function(request, response) {
   });
 });
 
-app.get("/:rss.xml", function(request, response) {
-  response.send('load parser here!');
-  return response.end();
+app.get("/:hash.xml", function(request, response) {
+  var hash, item;
+  hash = request.params.hash;
+  return item = rss.findOne({
+    $or: [
+      {
+        custom_url: hash
+      }, {
+        hash: hash
+      }
+    ]
+  }, function(_error, _item) {
+    var itemParser;
+    if (_item === null) {
+      response.set('Content-Type', 'text/html');
+      response.status(404);
+      return response.sendfile('public/404.html');
+    } else {
+      itemParser = loadParser(_item.parser);
+      console.log(itemParser);
+      return itemParser.work(_item.url, function(xml) {
+        return response.send(xml);
+      });
+    }
+  });
 });
 
 app.listen(process.env.VCAP_APP_PORT || 3000);
