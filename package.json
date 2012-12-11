@@ -7,7 +7,7 @@
     "url": "https://github.com/fmartingr/tvshows-rss2xml.git"
   },
   "dependencies" : {
-    "elementtree"   :  "*",
+    "elementtree" : "*",
     "express": "*",
     "mongoose": "*"
   },
