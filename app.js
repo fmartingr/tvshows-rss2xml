@@ -98,8 +98,10 @@ loadParser = function(_parser) {
 app.use(express.bodyParser());
 
 app.get("/", function(request, response) {
-  return response.sendfile("html/home.html");
+  return response.sendfile("public/home.html");
 });
+
+app.use("/static", express["static"](__dirname + '/public/static'));
 
 app.post("/", function(request, response) {
   var hash, parser, rssUrl;

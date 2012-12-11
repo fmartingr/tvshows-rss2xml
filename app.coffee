@@ -92,7 +92,9 @@ loadParser = (_parser) ->
 app.use express.bodyParser()
 
 app.get "/", (request, response) ->
-	response.sendfile "html/home.html"
+	response.sendfile "public/home.html"
+
+app.use("/static", express.static(__dirname + '/public/static'));
 
 app.post "/", (request, response) ->
 	rssUrl = request.param 'rss'

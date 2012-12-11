@@ -1,0 +1,89 @@
+html,
+body {
+  min-height: 100%;
+}
+body {
+  font-family: Helvetica, sans-serif;
+  background: #a1dbff;
+  /* Old browsers */
+
+  background: -moz-linear-gradient(top, #a1dbff 1%, #cbebff 60%, #f0f9ff 100%);
+  /* FF3.6+ */
+
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(1%, #a1dbff), color-stop(60%, #cbebff), color-stop(100%, #f0f9ff));
+  /* Chrome,Safari4+ */
+
+  background: -webkit-linear-gradient(top, #a1dbff 1%, #cbebff 60%, #f0f9ff 100%);
+  /* Chrome10+,Safari5.1+ */
+
+  background: -o-linear-gradient(top, #a1dbff 1%, #cbebff 60%, #f0f9ff 100%);
+  /* Opera 11.10+ */
+
+  background: -ms-linear-gradient(top, #a1dbff 1%, #cbebff 60%, #f0f9ff 100%);
+  /* IE10+ */
+
+  background: linear-gradient(to bottom, #a1dbff 1%, #cbebff 60%, #f0f9ff 100%);
+  /* W3C */
+
+  filter: progid:dximagetransform.microsoft.gradient(startColorstr='#a1dbff', endColorstr='#f0f9ff', GradientType=0);
+  /* IE6-9 */
+
+  text-shadow: 1px 1px 1px #ffffff;
+}
+.icons {
+  position: relative;
+  font-size: 200px;
+}
+.icons div {
+  display: inline-block;
+}
+.icons .rss {
+  background-color: #fc9700;
+  width: 200px;
+  height: 200px;
+  border-radius: 40px;
+  box-shadow: 0px 0px #ec8700, 0px -1px #e68100, 0px -2px #e07b00, 0px -3px #d97400, 0px -4px #d36e00, 0px -5px #cd6800, 0px -6px #c76200, 0px -7px #c15c00, 0px -8px #bb5600, 0px -9px #b55000, 0px -10px #ae4900, 0px -11px #a84300, 0px -12px #a23d00, 0px -13px #9c3700, 0px -14px #963100, 0px -15px #902b00, 0px -16px #892400, 0px -17px #831e00, 0px -18px #7d1800, 0px -19px #771200, 0px -20px #710c00, 0px -21px rgba(0, 0, 0, 0.6), 0px -21px rgba(0, 0, 0, 0.5), 0px 0px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  color: white;
+  line-height: 240px;
+  margin-right: 33.333333333333336px;
+}
+.icons .arrow {
+  position: absolute;
+  left: 42%;
+  top: 32%;
+  color: #fff9d6;
+  font-size: 134px;
+  text-shadow: 0px 0px 0 #dedede, 0px -1px 0 #d9d9d9, 0px -2px 0 #d5d5d5, 0px -3px 0 #d1d1d1, 0px -4px 0 #cccccc, 0px -5px 0 #c8c8c8, 0px -6px 0 #c4c4c4, 0px -7px 0 #bfbfbf, 0px -8px 0 #bbbbbb, 0px -9px 0 #b7b7b7, 0px -10px 0 #b2b2b2, 0px -11px 0 #aeaeae, 0px -12px 0 #a9a9a9, 0px -13px 0 #a5a5a5, 0px -14px 0 #a1a1a1, 0px -15px 0 #9c9c9c, 0px -16px 0 #989898, 0px -17px 0 #949494, 0px -18px 0 #8f8f8f, 0px -19px 0 #8b8b8b, 0px -20px 0 #878787, 0px -21px 20px rgba(0, 0, 0, 0.6), 0px -21px 1px rgba(0, 0, 0, 0.5), 0px 0px 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 50px;
+}
+.icons .tvshows img {
+  margin-left: 33.333333333333336px;
+  margin-bottom: -50px;
+  width: 280px;
+}
+.form {
+  text-align: center;
+}
+.form input[type="text"] {
+  width: 600px;
+  border: gray 2px solid;
+  font-size: 22px;
+}
+.form button[type="submit"] {
+  margin-top: 8px;
+  border: gray 2px solid;
+  width: 604px;
+  font-size: 22px;
+  text-transform: uppercase;
+}
+.disclaimer {
+  margin: 0 auto;
+  margin-top: 10px;
+  width: 50%;
+}
+.wrapper {
+  margin: 0 auto;
+  text-align: center;
+  max-width: 960px;
+}
