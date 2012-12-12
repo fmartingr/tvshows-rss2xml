@@ -67,7 +67,7 @@ class nyaaeu extends parser
 			item:
 				title: itemInfo.title #+ ' S01E' + itemInfo.episode
 				category: 'nyaatorrents'
-				description: 'eztv'
+				description: _description
 				pubDate: _pubDate
 				episodeNumber: itemInfo.episode
 				isHD: String((_title.indexOf('720p') != -1) || (_title.indexOf('1080p') != -1))

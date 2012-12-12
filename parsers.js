@@ -107,7 +107,7 @@ nyaaeu = (function(_super) {
       item: {
         title: itemInfo.title,
         category: 'nyaatorrents',
-        description: 'eztv',
+        description: _description,
         pubDate: _pubDate,
         episodeNumber: itemInfo.episode,
         isHD: String((_title.indexOf('720p') !== -1) || (_title.indexOf('1080p') !== -1)),
