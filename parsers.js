@@ -11,6 +11,8 @@ parser = (function() {
 
   function parser() {}
 
+  parser.url = '';
+
   parser.tree = null;
 
   parser.prototype.get = function(_url, _callback) {
@@ -33,13 +35,41 @@ parser = (function() {
 
   parser.prototype.work = function(_url, _callback) {
     var _this = this;
+    this.url = _url;
     return this.get(_url, function() {
       return _this.parse(_callback);
     });
   };
 
+  parser.prototype.generateItem = function(_title, _link, _pubDate, _description) {
+    var item;
+    item = {
+      item: {
+        title: _title,
+        description: _description,
+        pubDate: _pubDate,
+        isHD: String((_title.indexOf('720p') !== -1) || (_title.indexOf('1080p') !== -1)),
+        link: _link.replace('&', '&amp;'),
+        torrent: _link.replace('&', '&amp;')
+      }
+    };
+    return item;
+  };
+
   parser.prototype.parse = function(_callback) {
-    return _callback.call(this, this.tree);
+    var description, feedItem, feedItems, item, items, link, pubDate, title, _i, _len;
+    items = this.tree.findall('*/item');
+    feedItems = [];
+    for (_i = 0, _len = items.length; _i < _len; _i++) {
+      item = items[_i];
+      title = item.find('title').text;
+      link = item.find('link').text;
+      pubDate = item.find('pubDate').text;
+      description = item.find('description').text;
+      feedItem = this.generateItem(title, link, pubDate, description);
+      feedItems.push(feedItem);
+    }
+    return _callback.call(this, feedItems);
   };
 
   parser.prototype.foo = function() {
@@ -57,6 +87,36 @@ nyaaeu = (function(_super) {
   function nyaaeu() {
     return nyaaeu.__super__.constructor.apply(this, arguments);
   }
+
+  nyaaeu.prototype.getItemInfo = function(_title) {
+    var itemInfo, matches, regexp, title;
+    regexp = /[[a-zA-Z0-9\-\_]+\]? (.+) - ([\w\-]+)[\s]?[\.\w]*/i;
+    title = _title.replace(/\[[A-F0-9]{8}\]/, '');
+    title = title.replace(/\[(1080p|720p)\]/, '');
+    matches = title.match(regexp);
+    return itemInfo = {
+      title: matches[1],
+      episode: matches[2]
+    };
+  };
+
+  nyaaeu.prototype.generateItem = function(_title, _link, _pubDate, _description) {
+    var item, itemInfo;
+    itemInfo = this.getItemInfo(_title);
+    item = {
+      item: {
+        title: itemInfo.title,
+        category: 'nyaatorrents',
+        description: 'eztv',
+        pubDate: _pubDate,
+        episodeNumber: itemInfo.episode,
+        isHD: String((_title.indexOf('720p') !== -1) || (_title.indexOf('1080p') !== -1)),
+        link: _link.replace('&', '&amp;'),
+        torrent: _link.replace('&', '&amp;')
+      }
+    };
+    return item;
+  };
 
   nyaaeu.prototype.foo = function() {
     return console.log("DIS IS NYAAEU");

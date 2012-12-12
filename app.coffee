@@ -2,6 +2,7 @@ express = require 'express'
 url = require 'url'
 crypto = require 'crypto'
 mongoose = require 'mongoose'
+jstoxml = require 'jstoxml'
 app = express()
 
 # Load parsers
@@ -48,6 +49,36 @@ mongodb = mongoose.createConnection DDBB.connection
 mongodb.on 'error', console.error.bind(console, 'connection error: ')
 #mongodb.once 'open', ->
 #	console.log 'open!'
+
+class feed
+	contructor: (@json="", @xml="", @base="") ->
+
+	init: (_title, _link, _original, _pubDate) ->
+		@xml = ''
+		@json =
+			_name: 'rss'
+			_attrs:
+				version: '2.0'
+			_content:
+				channel: [
+					{ title: _title }
+#					{ description: '' }
+					{ pubDate: _pubDate }
+					{ original: _original }
+					{ link: _link }
+				]
+
+	addItem: (_item) ->
+		@json._content.channel.push _item
+
+	addItems: (_items) ->
+		for item in _items
+			@addItem item
+
+	getXML: ->
+		@xml = jstoxml.toXML @json, { header: true, indent: '  '}
+
+
 
 
 ####################################################
@@ -103,15 +134,14 @@ app.post "/", (request, response) ->
 	hash = createHash rssUrl, parser
 	rss.findOne { hash: hash }, (_error, _item) ->
 		if _item isnt null
-			item = _item
+			response.redirect "/#{_item.hash}.xml"
 		else
 			item = new rss 
 				url: rssUrl
 				hash: hash
 				parser: parser
-			item.save()
-		response.redirect "/#{item.hash}.xml"
-		response.end()
+			item.save ->
+				response.redirect "/#{item.hash}.xml"
 
 # RSS Request
 app.get "/:hash.xml", (request, response) ->
@@ -124,9 +154,13 @@ app.get "/:hash.xml", (request, response) ->
 			response.sendfile 'public/404.html'
 		else
 			itemParser = loadParser _item.parser
-			console.log itemParser
-			itemParser.work _item.url, (xml) ->
-				response.send xml
+			#itemParser.foo()
+			itemParser.work _item.url, (items) ->
+				responseFeed = new feed()
+				responseFeed.init 'Title', "http://localhost:3000/#{hash}.xml", 'Original', 'PubDate'
+				responseFeed.addItems items
+				response.set 'Content-Type', 'application/rss+xml'
+				response.send responseFeed.getXML()
 
 # Start server
 app.listen process.env.VCAP_APP_PORT || 3000
