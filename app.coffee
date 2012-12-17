@@ -18,9 +18,10 @@ DEBUG = true
 # PREPARE DDBB
 ####################################################
 
-if process.env.VCAP_SERVICES
-	env = JSON.parse process.env.VCAP_SERVICES
-	mongo = env['mongodb-1.8'][0]['credentials']
+if process.env.DOTCLOUD_DB_INSTANCES
+	DDBB = 
+		collection: 'rss'
+		connection: process.env.DOTCLOUD_DB_MONGODB_URL
 else
 	mongo =
 		"hostname": "localhost"
@@ -29,6 +30,11 @@ else
 		"password": ""
 		"name": ""
 		"db": "db"
+
+	# Database configuration
+	DDBB =
+		collection: 'rss'
+		connection: generateMongoUrl mongo
 
 generateMongoUrl = (_object) ->
 	_object.hostname = (_object.hostname || 'localhost')
@@ -39,10 +45,6 @@ generateMongoUrl = (_object) ->
 	else
 		"mongodb://" + _object.hostname + ":" + _object.port + "/" + _object.db;
 
-# Database configuration
-DDBB =
-	collection: 'rss'
-	connection: generateMongoUrl mongo
 
 mongodb = mongoose.createConnection DDBB.connection
 
@@ -76,7 +78,7 @@ class feed
 			@addItem item
 
 	getXML: ->
-		@xml = jstoxml.toXML @json, { header: true, indent: '  '}
+		@xml = jstoxml.toXML @json, { indent: '  '}
 
 
 
@@ -163,4 +165,4 @@ app.get "/:hash.xml", (request, response) ->
 				response.send responseFeed.getXML()
 
 # Start server
-app.listen process.env.VCAP_APP_PORT || 3000
+app.listen process.env.VCAP_APP_PORT || 8080
