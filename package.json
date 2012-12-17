@@ -9,7 +9,8 @@
   "dependencies" : {
     "elementtree" : "*",
     "express": "*",
-    "mongoose": "*"
+    "mongoose": "*",
+    "jstoxml": "*"
   },
   "license": "GPLv2",
   "engines": {
