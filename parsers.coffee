@@ -1,5 +1,6 @@
 http = require 'http'
 elementtree = require 'elementtree'
+url = require 'url'
 
 class parser
 	@url: ''
@@ -7,15 +8,23 @@ class parser
 
 	get: (_url, _callback) ->
 		console.log "GET: #{_url}" 
-		http.get "#{_url}", (response) =>
+		requestOptions =
+			host: url.parse(_url).host
+			path: url.parse(_url).path
+			port: 80
+			method: 'GET'
+		console.log requestOptions
+		#http.get "#{_url}", (response) =>
+		http.request requestOptions, (response) =>
 			data = ''
 			response.on 'data', (chunk) =>
 				data += chunk
 			response.on 'end', =>
 				@tree = elementtree.parse data
 				_callback.call()
-		.on 'error', (error) ->
-			console.log error.message
+		.end()
+		#.on 'error', (error) ->
+		#	console.log error.message
 
 	work: (_url, _callback) ->
 		@url = _url
@@ -65,7 +74,7 @@ class nyaaeu extends parser
 		itemInfo = @getItemInfo _title
 		item =
 			item:
-				title: itemInfo.title #+ ' S01E' + itemInfo.episode
+				title: itemInfo.title + ' S01E' + itemInfo.episode
 				category: 'nyaatorrents'
 				description: _description
 				pubDate: _pubDate
